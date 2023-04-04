@@ -44,6 +44,7 @@ endif()
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Multimedia)
 
 set(TS_FILES ${PROJECT_NAME}_zh_CN.ts)
 
@@ -52,6 +53,10 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        utils.h utils.cpp
+        cusbcamera.h cusbcamera.cpp
+        ctoupcamera.h ctoupcamera.cpp
+        appinit.cpp appinit.h
         ${TS_FILES}
 )
 
@@ -88,7 +93,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${ToupCam_LIBS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ncnn)
-
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Multimedia)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
