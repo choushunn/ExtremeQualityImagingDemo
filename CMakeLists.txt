@@ -57,6 +57,7 @@ set(PROJECT_SOURCES
         cusbcamera.h cusbcamera.cpp
         ctoupcamera.h ctoupcamera.cpp
         appinit.cpp appinit.h
+        appevent.cpp appevent.h
         ${TS_FILES}
 )
 
