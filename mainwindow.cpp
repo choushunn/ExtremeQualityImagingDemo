@@ -65,7 +65,7 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
             //处理帧
 //            connect(appInit->toupCamera, &CToupCamera::sendFrame, appInit->ncnnYolo, &CNcnn::detect);
             //显示帧
-            //connect(appInit->toupCamera, &CToupCamera::sendImage, this, &::MainWindow::showFrame);
+            connect(appInit->toupCamera, &CToupCamera::sendFrame, this, &MainWindow::showFrame);
         }
     }
     else
@@ -96,3 +96,14 @@ void MainWindow::showFrame(cv::Mat frame)
     ui->m_lbl_display2->setPixmap(QPixmap::fromImage(cvMatToQImage(frame)));
 }
 
+///**
+// * @brief 显示QImage
+// * @param image    接收到的QImage
+// */
+//void MainWindow::showFrame(QImage image)
+//{
+//    //    qDebug() << "MainWindow:3.show frame.";
+//    QImage new_image = image.scaled(ui->m_lbl_display1->width(), ui->m_lbl_display1->height(), Qt::KeepAspectRatio, Qt::FastTransformation);
+//    ui->m_lbl_display1->setPixmap(QPixmap::fromImage(new_image));
+//    ui->m_lbl_display2->setPixmap(QPixmap::fromImage(new_image));
+//}

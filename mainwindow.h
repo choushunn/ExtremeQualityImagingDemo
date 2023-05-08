@@ -5,6 +5,7 @@
 #include <QTimer>
 
 #include "appinit.h"
+#include "appevent.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,14 +24,12 @@ private slots:
     void on_m_btn_open_camera_clicked(bool checked);
     void showFrame(cv::Mat frame);
 
-
 private:
 
     AppInit*    appInit;
-//    AppEvent*   appEvent;
+    AppEvent*   appEvent;
     QThread*    appThread;
     QTimer*     m_timer = nullptr;
-    QTimer*     m_searchTimer = nullptr;
     int         fps = 30;
 
 };

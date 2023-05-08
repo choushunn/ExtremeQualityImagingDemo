@@ -141,7 +141,7 @@ void AppInit::initToupCamera()
             //循环每个相机
 #ifdef _WIN32
             mainwindowUi->m_cbx_camera_list->addItem(QString::fromWCharArray(arr[i].displayname));
-#elif
+#else
             mainwindowUi->m_cbx_camera_list->addItem(arr[i].displayname);
 #endif
         }

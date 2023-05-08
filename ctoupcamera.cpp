@@ -14,7 +14,7 @@ CToupCamera::CToupCamera(ToupcamDeviceV2 cur, QObject *parent)
     {
         //todo:
         //热插拔设备检测
-        //qDebug() << "handleEvent" << nEvent;
+//        qDebug() << "handleEvent" << nEvent;
         //运行时事件
         if (m_hcam)
         {
