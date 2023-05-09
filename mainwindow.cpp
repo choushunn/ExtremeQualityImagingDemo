@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     this->setWindowIcon(QIcon(":/img/logo.ico"));
     appInit  = new AppInit(ui);
-//    appEvent = new AppEvent(this);
+    appEvent = new AppEvent(this);
     //appEvent线程
     //    appEventThread = new QThread();
     //    appEvent->moveToThread(appEventThread);
@@ -49,11 +49,11 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
             //读取帧
             connect(m_timer, &QTimer::timeout, appInit->webCamera, &CUSBCamera::read);
             //处理帧
-            //connect(app_init->web_camera, &CUSBCamera::sendFrame, appEvent, &AppEvent::processFrame);
+            connect(appInit->webCamera, &CUSBCamera::sendFrame, appEvent, &AppEvent::processFrame);
 //            connect(appInit->webCamera, &CUSBCamera::sendFrame, appInit->ncnnYolo, &CNcnn::detect);
             //显示帧
-            connect(appInit->webCamera, &CUSBCamera::sendFrame, this, &MainWindow::showFrame);
-//            connect(appEvent, &AppEvent::sendProcessFrame, this, &MainWindow::showFrame);
+//            connect(appInit->webCamera, &CUSBCamera::sendFrame, this, &MainWindow::showFrame);
+            connect(appEvent, &AppEvent::sendProcessFrame, this, &MainWindow::showFrame);
         }
         else if(ui->m_cbx_camera_type->currentText() == "TOUP")
         {
@@ -107,3 +107,17 @@ void MainWindow::showFrame(cv::Mat frame)
 //    ui->m_lbl_display1->setPixmap(QPixmap::fromImage(new_image));
 //    ui->m_lbl_display2->setPixmap(QPixmap::fromImage(new_image));
 //}
+
+void MainWindow::on_pushButton_clicked(bool checked)
+{
+    if (checked) {
+        if(!appEvent->m_eventQueue.contains(GrayEvent)){
+            appEvent->m_eventQueue.append(GrayEvent);
+        }
+    } else {
+        if(appEvent->m_eventQueue.contains(GrayEvent)){
+            appEvent->m_eventQueue.removeAll(GrayEvent);
+        }
+    }
+}
+

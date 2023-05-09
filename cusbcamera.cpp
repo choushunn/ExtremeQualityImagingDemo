@@ -39,8 +39,8 @@ void CUSBCamera::open(){
  */
 void CUSBCamera::read(){
     cv::Mat frame;
-    qDebug() << "CUSBCamera:1.read frame";
-    qDebug() << "CUSBCamera" <<QThread::currentThreadId() << QThread::currentThread();
+//    qDebug() << "CUSBCamera:1.read frame";
+//    qDebug() << "CUSBCamera" <<QThread::currentThreadId() << QThread::currentThread();
     if (m_cap->isOpened())
     {
         bool ret = m_cap->read(frame);

@@ -18,5 +18,19 @@ void AppEvent::processFrame(cv::Mat frame)
 {
     qDebug() << "AppEvent:process frame.";
 //    cv::blur(frame, frame,cv::Size(5, 5));
-    emit sendProcessFrame(cvMatToQImage(frame));
+    // 处理当前事件
+    cv::Mat frame2 = frame.clone();
+
+    for(MyEventType eventType:m_eventQueue){
+        if (eventType  == FlipEvent) {
+            cv::flip(frame2, frame2, 1);
+        } else if (eventType  == GrayEvent) {
+            cv::cvtColor(frame2, frame2, cv::COLOR_RGB2GRAY);
+            qDebug() <<"gray envent";
+        }
+
+    }
+    emit sendProcessFrame(frame2);
 }
+
+

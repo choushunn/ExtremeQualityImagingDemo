@@ -24,6 +24,8 @@ private slots:
     void on_m_btn_open_camera_clicked(bool checked);
     void showFrame(cv::Mat frame);
 
+    void on_pushButton_clicked(bool checked);
+
 private:
 
     AppInit*    appInit;
