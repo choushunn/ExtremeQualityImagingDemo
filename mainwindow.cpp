@@ -90,7 +90,7 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
 void MainWindow::showFrame(cv::Mat frame)
 {
     //    qDebug() << "MainWindow:3.show frame.";
-//    cv::resize(frame,frame,cv::Size(ui->m_lbl_display1->height(),ui->m_lbl_display1->width()));
+    cv::resize(frame, frame, cv::Size(ui->m_lbl_display1->height(), ui->m_lbl_display1->width()));
 //    QImage new_image = image.scaled(ui->m_lbl_display1->width(), ui->m_lbl_display1->height(), Qt::KeepAspectRatio, Qt::FastTransformation);
     ui->m_lbl_display1->setPixmap(QPixmap::fromImage(cvMatToQImage(frame)));
     ui->m_lbl_display2->setPixmap(QPixmap::fromImage(cvMatToQImage(frame)));

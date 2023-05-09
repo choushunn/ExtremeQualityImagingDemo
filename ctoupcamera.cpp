@@ -141,7 +141,7 @@ void CToupCamera::read()
     if(SUCCEEDED(Toupcam_PullImageV2(m_hcam, m_pData, 24, pInfo))){
 //        QImage image(m_pData, pInfo->width, pInfo->height, QImage::Format_RGB888);
         //        emit sendImage(image);
-        cv::Mat frame(pInfo->height,pInfo->width, CV_8UC3, m_pData);
+        cv::Mat frame(pInfo->height, pInfo->width, CV_8UC3, m_pData);
         emit sendFrame(frame);
     }
 }
