@@ -27,9 +27,11 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     #配置OpenCV路径
     set(OpenCV_DIR "${THIRD_PARTY_LIB_PATH}/opencv/lib/cmake/opencv4")
     set(ncnn_DIR "${THIRD_PARTY_LIB_PATH}/ncnn/lib/cmake/ncnn")
+    #onnx
+    set(OnnxRuntime_DIR "${THIRD_PARTY_LIB_PATH}/onnxruntime-linux-x64-gpu")
 endif()
 
-
+message(${OnnxRuntime_DIR})
 
 #设置ToupCam_DIR和ToupCamConfig
 set(ToupCam_DIR "${THIRD_PARTY_LIB_PATH}/toupcam")
@@ -38,6 +40,7 @@ set(ToupCam_DIR "${THIRD_PARTY_LIB_PATH}/toupcam")
 find_package(OpenCV REQUIRED)
 find_package(ToupCam REQUIRED)
 find_package(ncnn REQUIRED)
+find_package(OnnxRuntime REQUIRED)
 
 include_directories("${ncnn_DIR}/include")
 
@@ -59,6 +62,7 @@ set(PROJECT_SOURCES
         ctoupcamera.h ctoupcamera.cpp
         appinit.cpp appinit.h
         appevent.cpp appevent.h
+        connx.h connx.cpp
         ${TS_FILES}
 )
 
@@ -96,6 +100,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${ToupCam_LIBS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ncnn)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Multimedia)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OnnxRuntime_LIBS})
+
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

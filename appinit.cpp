@@ -37,7 +37,7 @@ AppInit::AppInit(Ui::MainWindow *ui)
     //TODO:WebSocket初始化
 //    initWebSocket();
     //TODO:Onnx初始化
-//    initOnnx();
+    initOnnx();
     //TODO:Ncnn初始化
 //    initNcnn();
     //相机类型切换检测
@@ -216,14 +216,15 @@ void AppInit::initToupCamera()
  * @brief ONNX初始化
  * @param
  */
-//void AppInit::initOnnx()
-//{
-//    //    nc = new CNcnn();
-//    //    appThread = new QThread();
-//    //    nc->moveToThread(appThread);
-//    //    appThread->start();
-//    //    qDebug() << "AppInit:Onnx初始化完成.";
-//}
+void AppInit::initOnnx()
+{
+    //    nc = new CNcnn();
+    connx = new COnnx();
+    //    appThread = new QThread();
+    //    nc->moveToThread(appThread);
+    //    appThread->start();
+        qDebug() << "AppInit:Onnx初始化完成.";
+}
 
 
 /**
