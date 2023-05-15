@@ -27,6 +27,8 @@ private:
     unsigned        m_imgHeight;
     static void __stdcall eventCallBack(unsigned nEvent, void* pCallbackCtx);
     ToupcamFrameInfoV2* pInfo;
+
+
 signals:
     void evtCallback(unsigned nEvent);
     void sendImage(QImage image);
