@@ -14,7 +14,7 @@
 //#include "cncnn.h"
 //#include "yolov8onnx.h"
 #include "connx.h"
-#include "utils.h"
+#include <utils.h>
 
 namespace Ui{
 class MainWindow;

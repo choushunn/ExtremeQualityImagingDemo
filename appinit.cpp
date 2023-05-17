@@ -220,6 +220,10 @@ void AppInit::initOnnx()
 {
     //    nc = new CNcnn();
     connx = new COnnx();
+    cv::Mat frame = cv::imread("/home/mc/Pictures/0004.png");
+    cv::resize(frame,frame, cv::Size(640, 480));
+    qDebug() << frame.channels()<<frame.rows << frame.cols;
+    connx->run(frame);
     //    appThread = new QThread();
     //    nc->moveToThread(appThread);
     //    appThread->start();

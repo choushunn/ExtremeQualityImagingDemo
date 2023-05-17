@@ -1,39 +1,8 @@
 #include "connx.h"
+
+#include "opencv2/imgcodecs.hpp"
 #include "qdebug.h"
 #include <ostream>
-void printModelInfo(Ort::Session &session, Ort::AllocatorWithDefaultOptions &allocator)
-{
-    //输出模型输入节点的数量
-    size_t num_input_nodes = session.GetInputCount();
-    size_t num_output_nodes = session.GetOutputCount();
-    qDebug()<<"Number of input node is:"<<num_input_nodes;
-    qDebug()<<"Number of output node is:"<<num_output_nodes;
-
-    //获取输入输出维度
-    for(auto i = 0; i<num_input_nodes;i++)
-    {
-        std::vector<int64_t> input_dims = session.GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
-        qDebug()<<"input "<<i<<" dim is: ";
-        for(auto j=0; j<input_dims.size();j++)
-            qDebug()<<input_dims[j]<<" ";
-    }
-    for(auto i = 0; i<num_output_nodes;i++)
-    {
-        std::vector<int64_t> output_dims = session.GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
-        qDebug()<<"output "<<i<<" dim is: ";
-        for(auto j=0; j<output_dims.size();j++)
-            qDebug()<<output_dims[j]<<" ";
-    }
-    //输入输出的节点名
-
-    //    for(auto i = 0; i<num_input_nodes;i++)
-    //      qDebug()<<"The input op-name "<<i<<" is:"<< session.GetInputNameAllocated(i, allocator);
-    //    for(auto i = 0; i<num_output_nodes;i++)
-    //       qDebug()<<"The output op-name "<<i<<" is:"<< session.GetInputNameAllocated(i, allocator);
-
-    //input_dims_2[0] = input_dims_1[0] = output_dims[0] = 1;//batch size = 1
-}
-
 
 COnnx::COnnx(QObject *parent)
     : QObject{parent}
@@ -41,6 +10,8 @@ COnnx::COnnx(QObject *parent)
     //init env
     env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, "ONNXRUNTIME");
     sessionOptions = Ort::SessionOptions();
+
+    //chushihua cuda
     std::vector<std::string> availableProviders = Ort::GetAvailableProviders();
     auto cudaAvailable = std::find(availableProviders.begin(), availableProviders.end(), "CUDAExecutionProvider");
     OrtCUDAProviderOptions cudaOption;
@@ -59,31 +30,116 @@ COnnx::COnnx(QObject *parent)
     {
         qDebug() << "Inference device: CPU" ;
     }
-//    Ort::SessionOptions session_options;
-//    OrtSessionOptionsAppendExecutionProvider_CUDA(session_options, 0);
-//    session_options.SetIntraOpNumThreads(4);
-//    session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
+
+
+//chushihua model
 #ifdef _WIN32
-    const wchar_t* model_path = L"model.onnx";
+    const wchar_t* model_path = L"runtime/Net.onnx";
 #else
     const char* model_path = "/home/mc/Projects/runtime/Net.onnx";
 #endif
-    //    Ort::Session session(env,model_path,session_options);
-    //    Ort::AllocatorWithDefaultOptions allocator;
-    //    Ort::MemoryInfo memory_info = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator,OrtMemType::OrtMemTypeDefault);
-    //    //打印模型的信息
-    //    printModelInfo(session,allocator);
+
+    //chushihua session
+    session =  Ort::Session(env, model_path, sessionOptions);
+    Ort::AllocatorWithDefaultOptions allocator;
+    Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
+    std::vector<int64_t> inputTensorShape = inputTypeInfo.GetTensorTypeAndShapeInfo().GetShape();
+    this->isDynamicInputShape = false;
+    if(inputTensorShape[2] == -1 && inputTensorShape[3] == -1){
+        qDebug() <<"Dynamic input shape";
+        this->isDynamicInputShape = true;
+    }
+    qDebug() << "Input shape:" <<inputTensorShape;
+
+    //shuru/shuchu canshu
+    QString inputName = session.GetInputNameAllocated(0, allocator).get();
+    QString outputName = session.GetOutputNameAllocated(0, allocator).get();
+
+    qDebug() << "Input name:" << inputName;
+    qDebug() << "Output name:" << outputName;
+//
+    //    this->inputImageShape = cv::Size2f(inputSize);
 }
 
-void run(){
-    //    preProcess();
-    //session.run()
+void COnnx::preProcessing(cv::Mat &image, float*& blob, std::vector<int64_t>& inputTensorShape,cv::Mat &floatImage){
+
+//    cv::Mat floatImage;
+    image.convertTo(floatImage, CV_32FC3, 1.0/255);
+//    cv::transpose(floatImage,floatImage);
+//    cv::cvtColor(image, resizedImage, cv::COLOR_BGR2RGB);
+    inputTensorShape[2] = floatImage.rows;
+    inputTensorShape[3] = floatImage.cols;
+
+//    resizedImage.convertTo(floatImage, CV_32FC3, 1/255.0);
+    blob = new float[floatImage.cols*floatImage.rows*floatImage.channels()];
+    cv::Size floatImageSize{floatImage.cols, floatImage.rows};
+    //hwc->chw
+    std::vector<cv::Mat> chw(floatImage.channels());
+    for(int i=0; i<floatImage.channels(); ++i)
+    {
+        chw[i] =cv::Mat(floatImageSize, CV_32FC1, blob+i*floatImageSize.width*floatImageSize.height);
+    }
+    cv::split(floatImage, chw);
+
+}
+
+size_t vectorProduct(const std::vector<int64_t>& vector){
+    if(vector.empty()){
+        return 0;
+    }
+    size_t product = 1;
+    for(const auto & element:vector){
+        product *= element;
+    }
+    return product;
+}
+
+void COnnx::run(cv::Mat &image){
+    float *blob = nullptr;
+    std::vector<int64_t> inputTensorShape{1, 3, -1, -1};
+    cv::Mat floatImage;
+    this->preProcessing(image, blob, inputTensorShape, floatImage);
+    size_t inputTensorSize = vectorProduct(inputTensorShape);
+    qDebug() << "inputTensorSize:" << inputTensorSize;
+    std::vector<float> inputTensorValues(blob, blob+inputTensorSize);
+    std::vector<Ort::Value> inputTensors;
+
+    Ort::MemoryInfo memory_info = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
+
+
+    const char* input_names[] ={"actual_input_1"};
+    const char* output_names[] = {"output1"};
+    inputTensors.push_back(Ort::Value::CreateTensor<float>(memory_info,
+                                                           inputTensorValues.data(),
+                                                           inputTensorValues.size(),
+                                                           inputTensorShape.data(),
+                                                           inputTensorShape.size()));
+
+    std::vector<Ort::Value> outputTensors = this->session.Run(Ort::RunOptions{nullptr},
+                                                              input_names,
+                                                              inputTensors.data(),
+                                                              1,
+                                                              output_names,
+                                                              1);
+
+
+    std::vector<int64_t> outputShape = outputTensors[0].GetTensorTypeAndShapeInfo().GetShape();
+    qDebug() << "outputShape:"<<outputShape;
+    float* outputData = outputTensors[0].GetTensorMutableData<float>();
+    cv::Mat output_image(outputShape[2], outputShape[3], CV_32FC3, outputData);
+    cv::cvtColor(output_image, output_image, cv::COLOR_RGB2BGR);
+//    output_image *= 255;
+    output_image.convertTo(output_image, CV_8UC3, 255);
+    cv::imwrite("output.png", output_image);
+//    const QString win = "img";
+//    cv::imshow(WIN, output_image);
+//    cv::waitKey();
+//    cv::destroyAllWindows();
+    delete[] blob;
 }
 
 
-void COnnx::preProcessing(cv::Mat &image){
 
-}
 
 
 void COnnx::postProcessing(cv::Mat &image){

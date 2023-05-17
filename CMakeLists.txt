@@ -23,6 +23,8 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(OpenCV_DIR "${THIRD_PARTY_LIB_PATH}/opencv")
     #ncnn
     set(ncnn_DIR "${THIRD_PARTY_LIB_PATH}/ncnn/x64/lib/cmake/ncnn")
+    #onnx
+    set(OnnxRuntime_DIR "${THIRD_PARTY_LIB_PATH}/onnxruntime-gpu")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     #配置OpenCV路径
     set(OpenCV_DIR "${THIRD_PARTY_LIB_PATH}/opencv/lib/cmake/opencv4")
