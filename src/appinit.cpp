@@ -20,6 +20,22 @@ AppInit::AppInit()
     //    启动运行时间记录类用来记录每次软件运行开始时间和结束时间。
     //    关联全局事件过滤器处理自定义无边框UI拖动、全局按键处理等。
 }
+/**
+ * @brief findCameraIndex 根据ID查询/dev/video的序号
+ * @param cameraId 读取的相机id
+ */
+int findCameraIndex(QByteArray cameraId){
+    std::string dev_name_str(cameraId.data(), cameraId.size());
+    std::size_t pos = dev_name_str.find("/dev/video");
+    int dev_num =0;
+    if (pos != std::string::npos) {
+        std::string num_str = dev_name_str.substr(pos + 10);
+        dev_num = std::stoi(num_str);
+        qDebug() << "Device number: " << dev_num;
+        return dev_num;
+    }
+    return 0;
+}
 
 /**
  * @brief AppInit 构造函数
@@ -28,6 +44,7 @@ AppInit::AppInit()
 AppInit::AppInit(Ui::MainWindow *ui)
     :mainwindowUi(ui)
 {
+
     //TODO:UI初始化
     initMainWindowUI();
     //TODO:摄像头初始化
@@ -43,7 +60,21 @@ AppInit::AppInit(Ui::MainWindow *ui)
     //相机类型切换检测
     connect(mainwindowUi->m_cbx_camera_list, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index)
     {
+#ifdef _WIN32
         m_cameraIndex = index;
+#else
+        if(mainwindowUi->m_cbx_camera_type->currentText() == "USB"){
+            QByteArray dev_name = m_cameraList[index].id();
+            m_cameraIndex = findCameraIndex(dev_name);
+            //切换先删除初始化相机
+            if(webCamera){
+                delete webCamera;
+            }
+            webCamera = new CUSBCamera(m_cameraIndex);
+        }else{
+            m_cameraIndex = index;
+        }
+#endif
         qDebug() << "AppInit:camera index changed:" << m_cameraIndex;
     });
 
@@ -104,6 +135,14 @@ void AppInit::initCamera()
         mainwindowUi->m_cbx_camera_list->setDisabled(false);
         mainwindowUi->m_btn_open_camera->setDisabled(false);
         m_cameraIndex = mainwindowUi->m_cbx_camera_list->currentIndex();
+
+#ifdef _WIN32
+        qDebug() << "Windows";
+#else
+        QByteArray dev_name = m_cameraList[m_cameraIndex].id();
+        m_cameraIndex = findCameraIndex(dev_name);
+#endif
+//        m_cameraIndex = mainwindowUi->m_cbx_camera_list->currentIndex();
         //        appThread = new QThread();
         webCamera = new CUSBCamera(m_cameraIndex);
         //        camera->moveToThread(appThread);
@@ -218,16 +257,16 @@ void AppInit::initToupCamera()
  */
 void AppInit::initOnnx()
 {
-    //    nc = new CNcnn();
-    connx = new COnnx();
-    cv::Mat frame = cv::imread("/home/mc/Pictures/0004.png");
-    cv::resize(frame,frame, cv::Size(640, 480));
-    qDebug() << frame.channels()<<frame.rows << frame.cols;
-    connx->run(frame);
-    //    appThread = new QThread();
-    //    nc->moveToThread(appThread);
-    //    appThread->start();
-        qDebug() << "AppInit:Onnx初始化完成.";
+//    //    nc = new CNcnn();
+//    connx = new COnnx();
+//    cv::Mat frame = cv::imread("/home/mc/Pictures/0004.png");
+//    cv::resize(frame,frame, cv::Size(640, 480));
+//    qDebug() << frame.channels()<<frame.rows << frame.cols;
+//    connx->run(frame);
+//    //    appThread = new QThread();
+//    //    nc->moveToThread(appThread);
+//    //    appThread->start();
+//        qDebug() << "AppInit:Onnx初始化完成.";
 }
 
 

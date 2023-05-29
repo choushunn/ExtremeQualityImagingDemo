@@ -9,7 +9,7 @@ message(STATUS "current architecture: ${CMAKE_HOST_SYSTEM_PROCESSOR}")
 if(WIN32)
     set(THIRD_PARTY_LIB_PATH "E:\\runtime")
 else()
-    set(THIRD_PARTY_LIB_PATH "/home/mc/Projects/runtime")
+    set(THIRD_PARTY_LIB_PATH "/root/runtime")
 endif()
 
 set(CMAKE_AUTOUIC ON)
@@ -24,7 +24,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     #ncnn
     set(ncnn_DIR "${THIRD_PARTY_LIB_PATH}/ncnn/x64/lib/cmake/ncnn")
     #onnx
-    set(OnnxRuntime_DIR "${THIRD_PARTY_LIB_PATH}/onnxruntime-gpu")
+    set(OnnxRuntime_DIR "${THIRD_PARTY_LIB_PATH}/onnxruntime-cpu")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     #配置OpenCV路径
     set(OpenCV_DIR "${THIRD_PARTY_LIB_PATH}/opencv/lib/cmake/opencv4")
@@ -98,17 +98,16 @@ else()
             ${PROJECT_SOURCES}
         )
     endif()
-
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Multimedia)
 
 #链接第三方库
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${ToupCam_LIBS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ncnn)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Multimedia)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OnnxRuntime_LIBS})
 
 
@@ -120,9 +119,16 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+
+# message("${CMAKE_INSTALL_LIBDIR}")
+# install target and libraries
 install(TARGETS ${PROJECT_NAME}
     BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION bin
+    PUBLIC_HEADER DESTINATION include
+)
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(${PROJECT_NAME})

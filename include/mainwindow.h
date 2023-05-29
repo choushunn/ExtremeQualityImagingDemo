@@ -3,7 +3,9 @@
 
 #include <QMainWindow>
 #include <QTimer>
-
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QStyleFactory>
 #include "appinit.h"
 #include "appevent.h"
 
@@ -25,6 +27,18 @@ private slots:
     void showFrame(cv::Mat frame);
 
     void on_pushButton_clicked(bool checked);
+
+    void on_action_close_triggered();
+
+    void on_action_fullscreen_triggered();
+
+    void on_action_normal_triggered();
+
+    void on_action_open_triggered();
+
+    void on_action_maxscreen_triggered();
+
+    void on_comboBox_2_currentIndexChanged(int index);
 
 private:
 

@@ -18,6 +18,14 @@ MainWindow::MainWindow(QWidget *parent)
 //    m_searchTimer->setInterval(120);
 //    connect(m_searchTimer, &QTimer::timeout, this, &MainWindow::on_timeoutSearch);
     qDebug() << "MainWindow" <<QThread::currentThreadId() << QThread::currentThread();
+    //系统自带的QStyle风格
+    QStringList listStyle = QStyleFactory::keys();
+    //打印当前系统支持的系统风格
+    foreach(QString val, listStyle){
+        ui->comboBox_2->addItem(val);
+        qDebug()<<val<<"  ";
+    }
+    qApp->setStyle(QStyleFactory::create("Fusion"));
 }
 
 
@@ -62,11 +70,14 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
             m_timer->start();
             //读取帧
             connect(m_timer, &QTimer::timeout, appInit->toupCamera, &CToupCamera::read);
+            qDebug() <<"";
             //处理帧
 //            connect(appInit->toupCamera, &CToupCamera::sendFrame, appInit->ncnnYolo, &CNcnn::detect);
             //显示帧
             connect(appInit->toupCamera, &CToupCamera::sendFrame, this, &MainWindow::showFrame);
         }
+        ui->m_cbx_camera_list->setDisabled(true);
+        ui->m_cbx_camera_type->setDisabled(true);
     }
     else
     {
@@ -80,6 +91,8 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
         ui->m_btn_open_camera->setText("打开");
         ui->m_lbl_display1->clear();
         ui->m_lbl_display2->clear();
+        ui->m_cbx_camera_list->setDisabled(false);
+        ui->m_cbx_camera_type->setDisabled(false);
     }
 }
 
@@ -89,8 +102,8 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
  */
 void MainWindow::showFrame(cv::Mat frame)
 {
-    //    qDebug() << "MainWindow:3.show frame.";
-    cv::resize(frame, frame, cv::Size(ui->m_lbl_display1->height(), ui->m_lbl_display1->width()));
+        qDebug() << "MainWindow:3.show frame.";
+//    cv::resize(frame, frame, cv::Size(ui->m_lbl_display1->height(), ui->m_lbl_display1->width()));
 //    QImage new_image = image.scaled(ui->m_lbl_display1->width(), ui->m_lbl_display1->height(), Qt::KeepAspectRatio, Qt::FastTransformation);
     ui->m_lbl_display1->setPixmap(QPixmap::fromImage(cvMatToQImage(frame)));
     ui->m_lbl_display2->setPixmap(QPixmap::fromImage(cvMatToQImage(frame)));
@@ -119,5 +132,73 @@ void MainWindow::on_pushButton_clicked(bool checked)
             appEvent->m_eventQueue.removeAll(GrayEvent);
         }
     }
+}
+
+
+void MainWindow::on_action_fullscreen_triggered()
+{
+    if(MainWindow::isFullScreen()){
+        MainWindow::showNormal();
+    }else{
+        MainWindow::showFullScreen();
+    }
+}
+
+
+void MainWindow::on_action_close_triggered()
+{
+    int ret = QMessageBox::warning(this, "退出", "是否退出程序", QMessageBox::Ok, QMessageBox::Cancel);
+    switch(ret)
+    {
+    case QMessageBox::Ok:
+        qDebug() <<"退出程序";
+        QApplication::quit();
+        break;
+    case QMessageBox::Cancel:
+        qDebug() <<"取消退出程序";
+        break;
+    default:
+        break;
+    }
+}
+
+
+void MainWindow::on_action_maxscreen_triggered()
+{
+    if(MainWindow::isMaximized()){
+        MainWindow::showNormal();
+    }else{
+        MainWindow::showMaximized();
+    }
+}
+
+
+
+
+void MainWindow::on_action_normal_triggered()
+{
+    MainWindow::showNormal();
+
+}
+
+
+void MainWindow::on_action_open_triggered()
+{
+        QString path = QDir::currentPath();
+        QString fileName = QFileDialog::getOpenFileName(this, "选择一个文件", path,  "图像文件 (*.jpg *.png *.bmp)");
+
+        // 如果选择了文件，则加载图像文件并显示在标签控件中
+        if (!fileName.isEmpty())
+        {
+            QPixmap pixmap(fileName);
+            ui->m_lbl_display1->setPixmap(pixmap);
+        }
+}
+
+
+void MainWindow::on_comboBox_2_currentIndexChanged(int index)
+{
+    //设置当前风格为
+    qApp->setStyle(QStyleFactory::create(ui->comboBox_2->currentText()));
 }
 
