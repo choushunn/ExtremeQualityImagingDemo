@@ -142,6 +142,7 @@ void CToupCamera::read()
 //        QImage image(m_pData, pInfo->width, pInfo->height, QImage::Format_RGB888);
         //        emit sendImage(image);
         cv::Mat frame(pInfo->height, pInfo->width, CV_8UC3, m_pData);
+        cv::resize(frame,frame,cv::Size(640,480));
         emit sendFrame(frame);
     }
 }

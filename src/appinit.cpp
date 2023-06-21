@@ -258,15 +258,16 @@ void AppInit::initToupCamera()
 void AppInit::initOnnx()
 {
 //    //    nc = new CNcnn();
-//    connx = new COnnx();
-//    cv::Mat frame = cv::imread("/home/mc/Pictures/0004.png");
+    connx = new COnnx();
+
+//    cv::Mat frame = cv::imread("models/004.jpg");
 //    cv::resize(frame,frame, cv::Size(640, 480));
 //    qDebug() << frame.channels()<<frame.rows << frame.cols;
 //    connx->run(frame);
-//    //    appThread = new QThread();
-//    //    nc->moveToThread(appThread);
+//        appThread = new QThread();
+    //    nc->moveToThread(appThread);
 //    //    appThread->start();
-//        qDebug() << "AppInit:Onnx初始化完成.";
+        qDebug() << "AppInit:Onnx初始化完成.";
 }
 
 

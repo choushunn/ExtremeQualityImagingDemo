@@ -57,11 +57,13 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
             //读取帧
             connect(m_timer, &QTimer::timeout, appInit->webCamera, &CUSBCamera::read);
             //处理帧
-            connect(appInit->webCamera, &CUSBCamera::sendFrame, appEvent, &AppEvent::processFrame);
+//            connect(appInit->webCamera, &CUSBCamera::sendFrame, appEvent, &AppEvent::processFrame);
 //            connect(appInit->webCamera, &CUSBCamera::sendFrame, appInit->ncnnYolo, &CNcnn::detect);
             //显示帧
 //            connect(appInit->webCamera, &CUSBCamera::sendFrame, this, &MainWindow::showFrame);
-            connect(appEvent, &AppEvent::sendProcessFrame, this, &MainWindow::showFrame);
+//            connect(appEvent, &AppEvent::sendProcessFrame, this, &MainWindow::showFrame);
+            connect(appInit->webCamera, &CUSBCamera::sendFrame, appInit->connx, &COnnx::run);
+            connect(appInit->connx, &COnnx::sendFrame, this, &MainWindow::showFrame);
         }
         else if(ui->m_cbx_camera_type->currentText() == "TOUP")
         {
@@ -73,8 +75,11 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
             qDebug() <<"";
             //处理帧
 //            connect(appInit->toupCamera, &CToupCamera::sendFrame, appInit->ncnnYolo, &CNcnn::detect);
+
+            connect(appInit->toupCamera, &CToupCamera::sendFrame, appInit->connx, &COnnx::run);
+            connect(appInit->connx, &COnnx::sendFrame, this, &MainWindow::showFrame);
             //显示帧
-            connect(appInit->toupCamera, &CToupCamera::sendFrame, this, &MainWindow::showFrame);
+//            connect(appInit->toupCamera, &CToupCamera::sendFrame, this, &MainWindow::showFrame);
         }
         ui->m_cbx_camera_list->setDisabled(true);
         ui->m_cbx_camera_type->setDisabled(true);
@@ -103,7 +108,7 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
 void MainWindow::showFrame(cv::Mat frame)
 {
         qDebug() << "MainWindow:3.show frame.";
-//    cv::resize(frame, frame, cv::Size(ui->m_lbl_display1->height(), ui->m_lbl_display1->width()));
+    cv::resize(frame, frame, cv::Size(ui->m_lbl_display1->height(), ui->m_lbl_display1->width()));
 //    QImage new_image = image.scaled(ui->m_lbl_display1->width(), ui->m_lbl_display1->height(), Qt::KeepAspectRatio, Qt::FastTransformation);
     ui->m_lbl_display1->setPixmap(QPixmap::fromImage(cvMatToQImage(frame)));
     ui->m_lbl_display2->setPixmap(QPixmap::fromImage(cvMatToQImage(frame)));

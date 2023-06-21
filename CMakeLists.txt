@@ -24,7 +24,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     #ncnn
     set(ncnn_DIR "${THIRD_PARTY_LIB_PATH}/ncnn/x64/lib/cmake/ncnn")
     #onnx
-    set(OnnxRuntime_DIR "${THIRD_PARTY_LIB_PATH}/onnxruntime-cpu")
+    set(OnnxRuntime_DIR "${THIRD_PARTY_LIB_PATH}/onnxruntime")
+    #设置ToupCam_DIR和ToupCamConfig
+    set(ToupCam_DIR "${THIRD_PARTY_LIB_PATH}/toupcam/win")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     #配置OpenCV路径
     set(OpenCV_DIR "${THIRD_PARTY_LIB_PATH}/opencv/lib/cmake/opencv4")
@@ -35,8 +37,7 @@ endif()
 
 message(${OnnxRuntime_DIR})
 
-#设置ToupCam_DIR和ToupCamConfig
-set(ToupCam_DIR "${THIRD_PARTY_LIB_PATH}/toupcam")
+
 
 #导入第三方库
 find_package(OpenCV REQUIRED)
@@ -106,9 +107,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Multimedia)
 
 #链接第三方库
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${ToupCam_LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${TOUPCAM_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PRIVATE ncnn)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${OnnxRuntime_LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${ONNXRUNTIME_LIBS})
 
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
