@@ -42,6 +42,12 @@
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QGroupBox" name="groupBox_5">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="title">
            <string>摄像头</string>
           </property>
@@ -52,12 +58,12 @@
               <widget class="QComboBox" name="m_cbx_camera_type">
                <item>
                 <property name="text">
-                 <string>USB</string>
+                 <string>TOUP</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>TOUP</string>
+                 <string>USB</string>
                 </property>
                </item>
               </widget>
@@ -113,6 +119,12 @@
         </item>
         <item>
          <widget class="QGroupBox" name="groupBox_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="title">
            <string>算法</string>
           </property>
@@ -122,7 +134,7 @@
              <item>
               <widget class="QLabel" name="label">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>2</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -199,6 +211,12 @@
         </item>
         <item>
          <widget class="QGroupBox" name="groupBox_7">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="title">
            <string>颜色调整</string>
           </property>
@@ -295,6 +313,12 @@
         </item>
         <item>
          <widget class="QGroupBox" name="groupBox_3">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="title">
            <string>曝光与增益</string>
           </property>
@@ -403,7 +427,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="widget_3" native="true"/>
+         <widget class="QWidget" name="widget_3" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

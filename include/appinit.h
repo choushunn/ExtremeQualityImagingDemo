@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "connxbase.h"
 #include "ccamera.h"
+#include "cthread.h"
 
 namespace Ui{
 class MainWindow;
@@ -22,7 +23,7 @@ public:
     explicit AppInit(Ui::MainWindow *ui);
     COnnxBase* onnx= nullptr;
     CCamera* camera = nullptr;
-
+    CThread* m_cthread = nullptr;
 
 private:
     Ui::MainWindow       *mainwindowUi;

@@ -39,7 +39,7 @@ private slots:
     void on_comboBox_2_currentIndexChanged(int index);
 
     void readFrame() ;
-
+    void on_pushButton_clicked();
 
 private:
 
@@ -48,6 +48,8 @@ private:
     QThread*    appThread;
     QTimer*     m_timer = nullptr;
     int         fps = 30;
-
+private slots:
+//    void onNewFrame(const cv::Mat& frame);
+    void onInferenceFinished(const cv::Mat& output);
 };
 #endif // MAINWINDOW_H

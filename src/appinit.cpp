@@ -90,6 +90,7 @@ AppInit::AppInit(Ui::MainWindow *ui)
         initOnnx();
     });
 
+
 }
 
 /**
@@ -167,6 +168,7 @@ void AppInit::initCamera()
         if(camera == nullptr){
             qDebug() << "AppInit:相机初始化失败";
         }
+//        m_cthread->setCamera(camera);
     }
 }
 
@@ -193,5 +195,6 @@ void AppInit::initOnnx()
     }
 
     onnx = COnnxBase::createInstance(model_name, model_path, isGPU);
+//    m_cthread->setCONNX(onnx);
     qDebug() << "AppInit:Onnx初始化完成." << mainwindowUi->comboBox->currentIndex();
 }

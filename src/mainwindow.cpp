@@ -17,6 +17,9 @@ MainWindow::MainWindow(QWidget *parent)
         qDebug()<<val<<"  ";
     }
     qApp->setStyle(QStyleFactory::create("Fusion"));
+//    connect(appInit->m_cthread, &CThread::newFrame, this, &MainWindow::onNewFrame);
+//    connect(appInit->m_cthread, &CThread::inferenceFinished, this, &MainWindow::onInferenceFinished);
+
 }
 
 
@@ -50,6 +53,7 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
         connect(m_timer, &QTimer::timeout, this, &MainWindow::readFrame);
         ui->m_cbx_camera_list->setDisabled(true);
         ui->m_cbx_camera_type->setDisabled(true);
+//        appInit->m_cthread->start();
     }else{
                 appInit->camera->close();
                 ui->m_btn_open_camera->setText("打开");
@@ -206,3 +210,6 @@ void MainWindow::on_pushButton_clicked()
     ui->m_lbl_display1->setAlignment(Qt::AlignCenter);
 }
 
+void MainWindow::onInferenceFinished(const cv::Mat& output){
+    showFrame(output);
+}
