@@ -8,29 +8,29 @@ AppEvent::AppEvent(QObject *parent)
     //    比如类a的父类是b，类b的父类是c，现在有个信号要发给类d，在没有事件中转处理的情况下的做法是将a信号发给b，b再发给c，c再发给d，如果父类嵌套层级越多越复杂，代码越难管理。
     //    将类a的信号发给appevent类，然后类d直接关联appevent类进行处理就行。
     //    项目越大，会越发现事件中转处理的必要性，代码清晰，管理方便。
+    // 构造函数私有化，只能通过 instance() 获取单例对象
 }
 
-/**
- * @brief 处理frame
- * @param frame
- */
-void AppEvent::processFrame(cv::Mat frame)
+//AppEvent& AppEvent::getInstance()
+//{
+////    static AppEvent instance ;
+
+////    return instance;
+//}
+
+
+AppEvent::~AppEvent()
 {
-    qDebug() << "AppEvent:process frame.";
-//    cv::blur(frame, frame,cv::Size(5, 5));
-    // 处理当前事件
-    cv::Mat frame2 = frame.clone();
-
-    for(MyEventType eventType:m_eventQueue){
-        if (eventType  == FlipEvent) {
-            cv::flip(frame2, frame2, 1);
-        } else if (eventType  == GrayEvent) {
-            cv::cvtColor(frame2, frame2, cv::COLOR_RGB2GRAY);
-            qDebug() <<"gray envent";
-        }
-
-    }
-    emit sendProcessFrame(frame2);
+    // 析构函数
 }
+
+void AppEvent::sendEvent(QObject* receiver, QEvent* event)
+{
+    if (!receiver || !event)
+        return;
+
+    emit eventReceived(receiver, event);
+}
+
 
 

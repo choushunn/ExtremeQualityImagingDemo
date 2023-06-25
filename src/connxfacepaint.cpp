@@ -1,7 +1,6 @@
-#include "connx.h"
+#include "connxfacepaint.h"
 
-COnnx::COnnx(const std::string &model_path, bool isGPU)
-    :m_model_path(model_path),m_isGPU(isGPU)
+COnnxFacePaint::COnnxFacePaint(const std::string &model_path, bool isGPU)
 {
     env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, "ONNX");
     sessionOptions = Ort::SessionOptions();
@@ -11,7 +10,7 @@ COnnx::COnnx(const std::string &model_path, bool isGPU)
                                    availableProviders.end(),
                                    "CUDAExecutionProvider");
     OrtCUDAProviderOptions cudaOption;
-    if (m_isGPU && (cudaAvailable == availableProviders.end()))
+    if (isGPU && (cudaAvailable == availableProviders.end()))
     {
         qDebug() << "GPU is not supported by your ONNXRuntime build. Fallback to CPU.";
         qDebug() << "Inference device: CPU";
@@ -26,13 +25,14 @@ COnnx::COnnx(const std::string &model_path, bool isGPU)
         qDebug() << "Inference device: CPU" ;
     }
 
-    std::wstring widestr = std::wstring(m_model_path.begin(), m_model_path.end());
+    //const std::string model_path1 = "./models/face_paint_512_v2_0.onnx";
+    std::wstring widestr = std::wstring(model_path.begin(), model_path.end());
     session = Ort::Session(env, widestr.c_str(), sessionOptions);
     this->getModelInfo();
     qDebug() <<"000.COnnx init.";
 }
 
-void COnnx::getModelInfo(){
+void COnnxFacePaint::getModelInfo(){
     Ort::AllocatorWithDefaultOptions allocator;
     qDebug() << "input_count:"<<session.GetInputCount();
     qDebug() << "output_count:" << session.GetOutputCount();
@@ -61,7 +61,7 @@ void COnnx::getModelInfo(){
     }
 }
 
-COnnx::~COnnx()
+COnnxFacePaint::~COnnxFacePaint()
 {
     session.release();
     sessionOptions.release();
@@ -69,19 +69,16 @@ COnnx::~COnnx()
 }
 
 
-void COnnx:: preProcessing(const cv::Mat& input_image, Ort::Value& input_tensor){
+void COnnxFacePaint:: preProcessing(const cv::Mat& input_image, Ort::Value& input_tensor){
 
 }
 
 
 
-void COnnx:: run(const cv::Mat input_image, cv::Mat& output_image){
-
+void COnnxFacePaint:: run(const cv::Mat input_image, cv::Mat& output_image){
     cv::Mat dst_image;
     int height = input_node_dims_[2]; //480
     int width =  input_node_dims_[3];  //640
-    // 为输出图像分配内存
-    output_image.create(height, width, CV_8UC3);
     cv::resize(input_image, dst_image, cv::Size(width, height));
     qDebug() << "dst_image.cols=:width" << dst_image.cols <<"x" << dst_image.rows;
     //将输入的OpenCV Mat CV8UC3图像转换，1.CHW->HWC，2.转CV32FC3
@@ -107,8 +104,8 @@ void COnnx:: run(const cv::Mat input_image, cv::Mat& output_image){
                                                              input_node_dims_.data(),
                                                              input_node_dims_.size());
     assert(inputTensor.IsTensor());
-    const char* input_names[]={"actual_input_1"};
-    const char* output_names[]={"output1"};
+    const char* input_names[]={"input_image"};
+   const char* output_names[]={"output_image"};
     auto outputTensor = session.Run(Ort::RunOptions{ nullptr },
                                     input_names,
                                     &inputTensor,
@@ -127,7 +124,7 @@ void COnnx:: run(const cv::Mat input_image, cv::Mat& output_image){
         {
             for (int j = 0; j < width; j++)
             {
-                float pix = outputData[0];
+                float pix = outputData[0]*0.5+0.5;
                 pix = (pix > 0) ? pix : 0;
                 pix = (pix < 1) ? pix : 1;
                 pix *= 255;
@@ -137,15 +134,11 @@ void COnnx:: run(const cv::Mat input_image, cv::Mat& output_image){
         }
     }
     cv::cvtColor(dst, output_image, cv::COLOR_BGR2RGB);
-
-    //    cv::Mat output_image1(height, width, CV_32FC3, outputData);
-    //    output_image1.convertTo(output_image1, CV_8UC3, 255);
-    //    output_image = output_image1;
 }
 
 
 
-void COnnx:: postProcessing(Ort::Value& output_tensor, cv::Mat& output_image){
+void COnnxFacePaint:: postProcessing(Ort::Value& output_tensor, cv::Mat& output_image){
 
 
 }

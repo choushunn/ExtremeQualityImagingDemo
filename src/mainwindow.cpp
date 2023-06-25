@@ -8,16 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     this->setWindowIcon(QIcon(":/img/logo.ico"));
     appInit  = new AppInit(ui);
-    appEvent = new AppEvent(this);
-    //appEvent线程
-    //    appEventThread = new QThread();
-    //    appEvent->moveToThread(appEventThread);
-    //    appEventThread->start();
     m_timer  = new QTimer();
-//    m_searchTimer = new QTimer();
-//    m_searchTimer->setInterval(120);
-//    connect(m_searchTimer, &QTimer::timeout, this, &MainWindow::on_timeoutSearch);
-    qDebug() << "MainWindow" <<QThread::currentThreadId() << QThread::currentThread();
     //系统自带的QStyle风格
     QStringList listStyle = QStyleFactory::keys();
     //打印当前系统支持的系统风格
@@ -35,8 +26,14 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-
+//读取图像槽函数
+void MainWindow::readFrame() {
+    cv::Mat image;
+    appInit->camera->read(image);
+    if (!image.empty()) {
+        this->showFrame(image);
+    }
+}
 
 
 /**
@@ -47,59 +44,23 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
 {
     if(checked){
         ui->m_btn_open_camera->setText("关闭");
-        //1s读10帧
-//        fps = ui->lineEdit_FPS->text().toInt();
         m_timer->setInterval(int(1000/fps));
-//        connect(appInit->ncnnYolo, &CNcnn::sendDectectImage, this, &::MainWindow::showFrame);
-        if(ui->m_cbx_camera_type->currentText() == "USB"){
-            appInit->webCamera->open();
-            m_timer->start();
-            //读取帧
-            connect(m_timer, &QTimer::timeout, appInit->webCamera, &CUSBCamera::read);
-            //处理帧
-//            connect(appInit->webCamera, &CUSBCamera::sendFrame, appEvent, &AppEvent::processFrame);
-//            connect(appInit->webCamera, &CUSBCamera::sendFrame, appInit->ncnnYolo, &CNcnn::detect);
-            //显示帧
-//            connect(appInit->webCamera, &CUSBCamera::sendFrame, this, &MainWindow::showFrame);
-//            connect(appEvent, &AppEvent::sendProcessFrame, this, &MainWindow::showFrame);
-            connect(appInit->webCamera, &CUSBCamera::sendFrame, appInit->connx, &COnnx::run);
-            connect(appInit->connx, &COnnx::sendFrame, this, &MainWindow::showFrame);
-        }
-        else if(ui->m_cbx_camera_type->currentText() == "TOUP")
-        {
-            //打开摄像头
-            appInit->toupCamera->open();
-            m_timer->start();
-            //读取帧
-            connect(m_timer, &QTimer::timeout, appInit->toupCamera, &CToupCamera::read);
-            qDebug() <<"";
-            //处理帧
-//            connect(appInit->toupCamera, &CToupCamera::sendFrame, appInit->ncnnYolo, &CNcnn::detect);
-
-            connect(appInit->toupCamera, &CToupCamera::sendFrame, appInit->connx, &COnnx::run);
-            connect(appInit->connx, &COnnx::sendFrame, this, &MainWindow::showFrame);
-            //显示帧
-//            connect(appInit->toupCamera, &CToupCamera::sendFrame, this, &MainWindow::showFrame);
-        }
+        appInit->camera->open();
+        m_timer->start();
+        connect(m_timer, &QTimer::timeout, this, &MainWindow::readFrame);
         ui->m_cbx_camera_list->setDisabled(true);
         ui->m_cbx_camera_type->setDisabled(true);
-    }
-    else
-    {
-        if(ui->m_cbx_camera_type->currentText()=="USB"){
-            m_timer->stop();
-            appInit->webCamera->close();
-        }else if(ui->m_cbx_camera_type->currentText()=="TOUP")
-        {
-            appInit->toupCamera->close();
-        }
-        ui->m_btn_open_camera->setText("打开");
-        ui->m_lbl_display1->clear();
-        ui->m_lbl_display2->clear();
-        ui->m_cbx_camera_list->setDisabled(false);
-        ui->m_cbx_camera_type->setDisabled(false);
+    }else{
+                appInit->camera->close();
+                ui->m_btn_open_camera->setText("打开");
+                ui->m_lbl_display1->clear();
+                ui->m_lbl_display2->clear();
+                ui->m_cbx_camera_list->setDisabled(false);
+                ui->m_cbx_camera_type->setDisabled(false);
     }
 }
+
+
 
 /**
  * @brief 显示QImage
@@ -107,41 +68,32 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
  */
 void MainWindow::showFrame(cv::Mat frame)
 {
-        qDebug() << "MainWindow:3.show frame.";
-    cv::resize(frame, frame, cv::Size(ui->m_lbl_display1->height(), ui->m_lbl_display1->width()));
-//    QImage new_image = image.scaled(ui->m_lbl_display1->width(), ui->m_lbl_display1->height(), Qt::KeepAspectRatio, Qt::FastTransformation);
-    ui->m_lbl_display1->setPixmap(QPixmap::fromImage(cvMatToQImage(frame)));
-    ui->m_lbl_display2->setPixmap(QPixmap::fromImage(cvMatToQImage(frame)));
-}
-
-///**
-// * @brief 显示QImage
-// * @param image    接收到的QImage
-// */
-//void MainWindow::showFrame(QImage image)
-//{
-//    //    qDebug() << "MainWindow:3.show frame.";
-//    QImage new_image = image.scaled(ui->m_lbl_display1->width(), ui->m_lbl_display1->height(), Qt::KeepAspectRatio, Qt::FastTransformation);
-//    ui->m_lbl_display1->setPixmap(QPixmap::fromImage(new_image));
-//    ui->m_lbl_display2->setPixmap(QPixmap::fromImage(new_image));
-//}
-
-void MainWindow::on_pushButton_clicked(bool checked)
-{
-    if (checked) {
-        if(!appEvent->m_eventQueue.contains(GrayEvent)){
-            appEvent->m_eventQueue.append(GrayEvent);
-        }
-    } else {
-        if(appEvent->m_eventQueue.contains(GrayEvent)){
-            appEvent->m_eventQueue.removeAll(GrayEvent);
-        }
+    cv::resize(frame, frame, cv::Size(640, 480));
+    QSize size = ui->m_lbl_display1->size();
+    QImage qimage1(frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
+    QPixmap pixmap1 = QPixmap::fromImage(qimage1);
+    pixmap1 = pixmap1.scaled(size, Qt::KeepAspectRatio);
+    ui->m_lbl_display1->setPixmap(pixmap1);
+    if(ui->m_btn_load_algorithm->isChecked()){
+        // 初始化输出图像
+        cv::Mat output_image;
+        appInit->onnx->run(frame, output_image);
+        cv::resize(output_image, output_image, cv::Size(640, 480));
+        QImage qimage(output_image.data, output_image.cols, output_image.rows, QImage::Format_RGB888);
+        QPixmap pixmap = QPixmap::fromImage(qimage);
+        pixmap = pixmap.scaled(size, Qt::KeepAspectRatio);
+        ui->m_lbl_display2->setPixmap(pixmap);
+    }
+    else{
+        ui->m_lbl_display2->clear();
     }
 }
 
 
+
 void MainWindow::on_action_fullscreen_triggered()
 {
+    //设置全屏
     if(MainWindow::isFullScreen()){
         MainWindow::showNormal();
     }else{
@@ -152,6 +104,7 @@ void MainWindow::on_action_fullscreen_triggered()
 
 void MainWindow::on_action_close_triggered()
 {
+    //退出程序
     int ret = QMessageBox::warning(this, "退出", "是否退出程序", QMessageBox::Ok, QMessageBox::Cancel);
     switch(ret)
     {
@@ -170,6 +123,7 @@ void MainWindow::on_action_close_triggered()
 
 void MainWindow::on_action_maxscreen_triggered()
 {
+    //最大化窗口
     if(MainWindow::isMaximized()){
         MainWindow::showNormal();
     }else{
@@ -183,7 +137,6 @@ void MainWindow::on_action_maxscreen_triggered()
 void MainWindow::on_action_normal_triggered()
 {
     MainWindow::showNormal();
-
 }
 
 
@@ -205,5 +158,51 @@ void MainWindow::on_comboBox_2_currentIndexChanged(int index)
 {
     //设置当前风格为
     qApp->setStyle(QStyleFactory::create(ui->comboBox_2->currentText()));
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    // 打开图像文件对话框
+    QString file_path = QFileDialog::getOpenFileName(this, tr("Open Image"), "C:\\Users\\Spring\\Pictures\\images", tr("Image Files (*.png *.jpg *.bmp)"));
+
+    // 读取图像文件
+    cv::Mat image = cv::imread(file_path.toStdString());
+
+    //文件为空
+    if (image.empty()) {
+            return;
+    }
+
+    // 初始化输出图像
+    cv::resize(image, image, cv::Size(640, 480));
+    // 调整图像大小以适应控件大小
+    QSize size = ui->m_lbl_display1->size();
+    cv::Mat output_image;
+    if(ui->m_btn_load_algorithm->isChecked()){
+        appInit->onnx->run(image,output_image);
+        //结果图
+        cv::resize(output_image, output_image, cv::Size(640, 480));
+        // 将图像转换为Qt格式
+        QImage qimage1(output_image.data, output_image.cols, output_image.rows, QImage::Format_RGB888);
+        qDebug() << output_image.cols << output_image.rows;
+        QPixmap pixmap1 = QPixmap::fromImage(qimage1);
+        // 调整图像大小以适应控件大小
+        //    QSize size1 = ui->label_2->size();
+        pixmap1 = pixmap1.scaled(size, Qt::KeepAspectRatio);
+        // 将图像显示到控件中
+        ui->m_lbl_display2->setPixmap(pixmap1);
+        ui->m_lbl_display2->setAlignment(Qt::AlignCenter);
+    }
+
+    //显示输入图像
+    cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+    // 将图像转换为Qt格式
+    QImage qimage(image.data, image.cols, image.rows, QImage::Format_RGB888);
+    qDebug() << image.cols << image.rows;
+    QPixmap pixmap = QPixmap::fromImage(qimage);
+    pixmap = pixmap.scaled(size, Qt::KeepAspectRatio);
+    // 将图像显示到控件中
+    ui->m_lbl_display1->setPixmap(pixmap);
+    ui->m_lbl_display1->setAlignment(Qt::AlignCenter);
 }
 

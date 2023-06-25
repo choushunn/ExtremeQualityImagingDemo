@@ -2,19 +2,9 @@
 #define APPEVENT_H
 
 #include <QObject>
-#include <QEvent>
 #include <qdebug.h>
-#include "utils.h"
 
 
-// 自定义事件类型
-enum MyEventType {
-    FlipEvent = QEvent::User + 1,
-    GrayEvent,
-    ScaleEvent,
-    HistEvent,
-    rgbHistEvent,
-};
 
 
 class AppEvent : public QObject
@@ -22,15 +12,16 @@ class AppEvent : public QObject
     Q_OBJECT
 
 public:
-    explicit AppEvent(QObject *parent = nullptr);
-    QVector<MyEventType> m_eventQueue; //动态数组容器
+    static AppEvent& getInstance();  // 获取单例对象
+    void sendEvent(QObject* receiver, QEvent* event);  // 发送事件
+private:
+    AppEvent(QObject* parent = nullptr);  // 构造函数
+    ~AppEvent();  // 析构函数
+    Q_DISABLE_COPY(AppEvent)  // 禁止拷贝和赋值
 
-
-public slots:
-    void processFrame(cv::Mat frame);
 
 signals:
-    void sendProcessFrame(cv::Mat image);
+    void eventReceived(QObject* receiver, QEvent* event);  // 事件接收信号
 };
 
 

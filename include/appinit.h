@@ -4,17 +4,11 @@
 #include <QMainWindow>
 #include <QMediaDevices>
 #include <QCamera>
-//#include <QSerialPort>
-//#include <QSerialPortInfo>
+#include <toupcam.h>
 #include "ui_mainwindow.h"
-//#include "cwebsocket.h"
-#include "cusbcamera.h"
-//#include "cserialport.h"
-#include "ctoupcamera.h"
-//#include "cncnn.h"
-//#include "yolov8onnx.h"
-#include "connx.h"
-#include <utils.h>
+#include "utils.h"
+#include "connxbase.h"
+#include "ccamera.h"
 
 namespace Ui{
 class MainWindow;
@@ -26,36 +20,23 @@ class AppInit : public QMainWindow
 public:
     AppInit();
     explicit AppInit(Ui::MainWindow *ui);
-    CUSBCamera*     webCamera  = nullptr;
-    CToupCamera*    toupCamera = nullptr;
-//    CWebSocket*     webSocket  = nullptr;
-//    CSerialPort*    serialPort = nullptr;
-//    CNcnn*          ncnnYolo   = nullptr;
-    COnnx* connx=nullptr;
-//    QThread*        appThread  = nullptr;
+    COnnxBase* onnx= nullptr;
+    CCamera* camera = nullptr;
+
 
 private:
     Ui::MainWindow       *mainwindowUi;
     QList<QCameraDevice> m_cameraList;
-    int m_cameraIndex;
+    int m_cameraIndex = 0;
+    std::string camera_type = "USB";
 
-public:
-//    void initWebSocket();
 
 private:
     void initMainWindowUI();
     void initCamera();
-    void initToupCamera();
-//    void initSerialPort();
-
     void initOnnx();
-//    void initNcnn();
 
 signals:
-
-public slots:
-//    void showTextMessage(const QString &message);
-
 
 };
 

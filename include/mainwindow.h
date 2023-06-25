@@ -26,8 +26,6 @@ private slots:
     void on_m_btn_open_camera_clicked(bool checked);
     void showFrame(cv::Mat frame);
 
-    void on_pushButton_clicked(bool checked);
-
     void on_action_close_triggered();
 
     void on_action_fullscreen_triggered();
@@ -40,10 +38,13 @@ private slots:
 
     void on_comboBox_2_currentIndexChanged(int index);
 
+    void readFrame() ;
+
+
 private:
 
     AppInit*    appInit;
-    AppEvent*   appEvent;
+//    AppEvent&   appEvent =AppEvent::getInstance();
     QThread*    appThread;
     QTimer*     m_timer = nullptr;
     int         fps = 30;
