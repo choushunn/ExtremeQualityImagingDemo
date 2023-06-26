@@ -3,7 +3,7 @@
 
 #include <QThread>
 #include "ccamera.h"
-#include "connxbase.h"
+#include "connx.h"
 
 class CThread : public QThread
 {
@@ -12,7 +12,7 @@ public:
     explicit CThread(QObject *parent = nullptr);
     ~CThread();
     void setCamera(CCamera* camera);
-    void setCONNX(COnnxBase* connx);
+    void setCONNX(COnnx* connx);
     void stop();
 signals:
     void newFrame(const cv::Mat& frame);
@@ -21,7 +21,7 @@ protected:
     void run() override;
 private:
     CCamera* m_camera;
-    COnnxBase* m_connx;
+    COnnx* m_connx;
     bool m_stop;
 signals:
 

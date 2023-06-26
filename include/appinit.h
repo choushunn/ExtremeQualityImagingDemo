@@ -7,7 +7,7 @@
 #include <toupcam.h>
 #include "ui_mainwindow.h"
 #include "utils.h"
-#include "connxbase.h"
+#include "connx.h"
 #include "ccamera.h"
 #include "cthread.h"
 
@@ -21,7 +21,7 @@ class AppInit : public QMainWindow
 public:
     AppInit();
     explicit AppInit(Ui::MainWindow *ui);
-    COnnxBase* onnx= nullptr;
+    COnnx* onnx= nullptr;
     CCamera* camera = nullptr;
     CThread* m_cthread = nullptr;
 

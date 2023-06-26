@@ -1,22 +1,22 @@
-#ifndef CONNXFACEPAINT_H
-#define CONNXFACEPAINT_H
+#ifndef CONNX_H
+#define CONNX_H
 #include <opencv2/opencv.hpp>
 #include <QDebug>
 #include <onnxruntime_cxx_api.h>
-
 #include "connx.h"
 
-class COnnxFacePaint:public COnnx
+class COnnxNAF:public COnnx
 {
 public:
-    COnnxFacePaint(const std::string &model_path="./models/face_paint_512_v2_0", bool isGPU=false);
-    ~COnnxFacePaint();
-    void run(const cv::Mat input_image, cv::Mat& output_image) override ;
+    COnnxNAF(const std::string &model_path="./models/Net.onnx",bool isGPU=false);
+    ~COnnxNAF();
+    void run(const cv::Mat input_image, cv::Mat& output_image) override;
 
 private:
-    void preProcessing(const cv::Mat& input_image, Ort::Value& input_tensor)override ;
-    void postProcessing(Ort::Value& output_tensor, cv::Mat& output_image)override ;
+    void preProcessing(const cv::Mat& input_image, Ort::Value& input_tensor) override;
+    void postProcessing(Ort::Value& output_tensor, cv::Mat& output_image) override;
     void getModelInfo();
+
 private:
     Ort::Env env{nullptr};
     Ort::SessionOptions sessionOptions{nullptr};
@@ -29,6 +29,9 @@ private:
     // 获取输入输出张量大小
     size_t input_tensor_size_;
     size_t output_tensor_size_;
+private:
+    std::string m_model_path;
+    bool m_isGPU;
 };
 
-#endif // CONNXFACEPAINT_H
+#endif // CONNX_H

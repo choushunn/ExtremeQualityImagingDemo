@@ -194,7 +194,7 @@ void AppInit::initOnnx()
         model_path = "./models/face_paint_512_v2_0.onnx";
     }
 
-    onnx = COnnxBase::createInstance(model_name, model_path, isGPU);
+    onnx = COnnx::createInstance(model_name, model_path, isGPU);
 //    m_cthread->setCONNX(onnx);
     qDebug() << "AppInit:Onnx初始化完成." << mainwindowUi->comboBox->currentIndex();
 }

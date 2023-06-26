@@ -72,12 +72,18 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
  */
 void MainWindow::showFrame(cv::Mat frame)
 {
+    if(frame.empty()){
+
+        return;
+    }
     cv::resize(frame, frame, cv::Size(640, 480));
+
     QSize size = ui->m_lbl_display1->size();
     QImage qimage1(frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
     QPixmap pixmap1 = QPixmap::fromImage(qimage1);
     pixmap1 = pixmap1.scaled(size, Qt::KeepAspectRatio);
     ui->m_lbl_display1->setPixmap(pixmap1);
+
     if(ui->m_btn_load_algorithm->isChecked()){
         // 初始化输出图像
         cv::Mat output_image;
@@ -174,16 +180,18 @@ void MainWindow::on_pushButton_clicked()
 
     //文件为空
     if (image.empty()) {
-            return;
+        return;
+    }else{
+        // 初始化输出图像
+        cv::resize(image, image, cv::Size(640, 480));
+        //显示输入图像
+        cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
     }
-
-    // 初始化输出图像
-    cv::resize(image, image, cv::Size(640, 480));
     // 调整图像大小以适应控件大小
     QSize size = ui->m_lbl_display1->size();
     cv::Mat output_image;
     if(ui->m_btn_load_algorithm->isChecked()){
-        appInit->onnx->run(image,output_image);
+        appInit->onnx->run(image, output_image);
         //结果图
         cv::resize(output_image, output_image, cv::Size(640, 480));
         // 将图像转换为Qt格式
@@ -198,8 +206,7 @@ void MainWindow::on_pushButton_clicked()
         ui->m_lbl_display2->setAlignment(Qt::AlignCenter);
     }
 
-    //显示输入图像
-    cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+
     // 将图像转换为Qt格式
     QImage qimage(image.data, image.cols, image.rows, QImage::Format_RGB888);
     qDebug() << image.cols << image.rows;

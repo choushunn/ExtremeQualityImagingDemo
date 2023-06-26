@@ -1,37 +1,19 @@
-#ifndef CONNX_H
-#define CONNX_H
-#include <opencv2/opencv.hpp>
-#include <QDebug>
+#ifndef CONNXBASE_H
+#define CONNXBASE_H
 #include <onnxruntime_cxx_api.h>
-#include "connxbase.h"
+#include <opencv2/opencv.hpp>
 
-class COnnx:public COnnxBase
+class COnnx
 {
 public:
-    COnnx(const std::string &model_path="./models/Net.onnx",bool isGPU=false);
-    ~COnnx();
-    void run(const cv::Mat input_image, cv::Mat& output_image) override;
+    COnnx();
+    virtual void run(const cv::Mat input_image, cv::Mat& output_image) = 0;
+    //工厂方法
+    static COnnx* createInstance(const std::string& type, const std::string& model_path = "", bool isGPU = false);
+private:
+    virtual void preProcessing(const cv::Mat& input_image, Ort::Value& input_tensor) = 0;
+    virtual void postProcessing(Ort::Value& output_tensor, cv::Mat& output_image) = 0;
 
-private:
-    void preProcessing(const cv::Mat& input_image, Ort::Value& input_tensor) override;
-    void postProcessing(Ort::Value& output_tensor, cv::Mat& output_image) override;
-    void getModelInfo();
-
-private:
-    Ort::Env env{nullptr};
-    Ort::SessionOptions sessionOptions{nullptr};
-    Ort::Session session{nullptr};
-    std::vector<const char*> inputNames{nullptr};
-    std::vector<const char*> outputNames{nullptr};
-    // 获取输入输出维度
-    std::vector<int64_t> input_node_dims_;
-    std::vector<int64_t> output_node_dims_;
-    // 获取输入输出张量大小
-    size_t input_tensor_size_;
-    size_t output_tensor_size_;
-private:
-    std::string m_model_path;
-    bool m_isGPU;
 };
 
-#endif // CONNX_H
+#endif // CONNXBASE_H
