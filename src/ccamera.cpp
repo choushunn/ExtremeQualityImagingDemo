@@ -21,6 +21,4 @@ CCamera* CCamera::createInstance(const std::string type, const int index) {
         qDebug() << "创建摄像头失败"<< &type << index;
         return nullptr;
     }
-
-
 }

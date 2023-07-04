@@ -5,6 +5,7 @@
 #include <QMediaDevices>
 #include <QCamera>
 #include <toupcam.h>
+#include "ctoupcamera.h"
 #include "ui_mainwindow.h"
 #include "utils.h"
 #include "connx.h"
@@ -22,8 +23,11 @@ public:
     AppInit();
     explicit AppInit(Ui::MainWindow *ui);
     COnnx* onnx= nullptr;
-    CCamera* camera = nullptr;
+//    CCamera* camera = nullptr;
     CThread* m_cthread = nullptr;
+    // 将CCamera指针类型转换为CToupCamera指针类型
+//    CToupCamera* toup = dynamic_cast<CToupCamera*>(camera);
+    CToupCamera* camera = nullptr;
 
 private:
     Ui::MainWindow       *mainwindowUi;

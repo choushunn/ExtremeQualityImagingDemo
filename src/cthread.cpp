@@ -10,7 +10,7 @@ void CThread::setCamera(CCamera* camera)
     m_camera = camera;
 }
 
-void CThread::setCONNX(COnnxBase* connx)
+void CThread::setCONNX(COnnx* connx)
 {
     m_connx = connx;
 }

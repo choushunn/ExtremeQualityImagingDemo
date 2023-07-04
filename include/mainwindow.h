@@ -37,19 +37,20 @@ private slots:
     void on_action_maxscreen_triggered();
 
     void on_comboBox_2_currentIndexChanged(int index);
-
     void readFrame() ;
     void on_pushButton_clicked();
 
 private:
 
     AppInit*    appInit;
-//    AppEvent&   appEvent =AppEvent::getInstance();
     QThread*    appThread;
     QTimer*     m_timer = nullptr;
     int         fps = 30;
 private slots:
-//    void onNewFrame(const cv::Mat& frame);
     void onInferenceFinished(const cv::Mat& output);
+    void on_m_slider_expoTime_valueChanged(int value);
+    void on_m_cbox_auto_stateChanged(int arg1);
+    void on_m_slider_expoGain_valueChanged(int value);
+    void on_action_triggered();
 };
 #endif // MAINWINDOW_H

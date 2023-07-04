@@ -69,9 +69,10 @@ AppInit::AppInit(Ui::MainWindow *ui)
                 m_cameraIndex = index;
             }
 #endif
-                camera = CCamera::createInstance(
-                    camera_type,
-                    m_cameraIndex);
+//                camera = CCamera::createInstance(
+//                    camera_type,
+//                    m_cameraIndex);
+                 camera= new CToupCamera(m_cameraIndex);
                 qDebug() << "AppInit:camera index changed:" << m_cameraIndex;                
             });
 
@@ -163,7 +164,8 @@ void AppInit::initCamera()
 
 
         // 加载TOUP相机
-        camera = CCamera::createInstance(camera_type, m_cameraIndex);
+//        camera = CCamera::createInstance(camera_type, m_cameraIndex);
+        camera= new CToupCamera(m_cameraIndex);
         qDebug() << "AppInit:相机初始化完成." << "检测到"<< camera_list.capacity() << "个摄像头.";
         if(camera == nullptr){
             qDebug() << "AppInit:相机初始化失败";
@@ -181,7 +183,7 @@ void AppInit::initOnnx()
     std::string model_path = "./models/Net.onnx";
     bool isGPU = false;
     if(mainwindowUi->checkBox_3->isChecked()){
-        isGPU=true;
+        isGPU = true;
     }
     std::string model_name ="onnx";
 

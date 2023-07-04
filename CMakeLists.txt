@@ -10,7 +10,7 @@ set(CMAKE_PREFIX_PATH "D:\\Programs\\Qt\\6.2.4\\msvc2019_64")
 
 #配置库文件路径
 if (WIN32)
-    set(THIRD_PARTY_LIB_PATH "E:\\runtime")
+    set(THIRD_PARTY_LIB_PATH "F:\\share\\runtime")
 else ()
     set(THIRD_PARTY_LIB_PATH "/root/runtime")
 endif ()

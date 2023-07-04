@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "ctoupcamera.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -53,14 +54,30 @@ void MainWindow::on_m_btn_open_camera_clicked(bool checked)
         connect(m_timer, &QTimer::timeout, this, &MainWindow::readFrame);
         ui->m_cbx_camera_list->setDisabled(true);
         ui->m_cbx_camera_type->setDisabled(true);
-//        appInit->m_cthread->start();
+        Toupcam_put_Speed(appInit->camera->m_hcam, 1);
+        // 分辨率
+        Toupcam_put_eSize(appInit->camera->m_hcam, static_cast<unsigned>(1));
+        unsigned uimax = 0,  uimin = 0, uidef = 0;
+        unsigned short usmax = 0, usmin = 0, usdef = 0;
+        // 曝光时间
+        Toupcam_get_ExpTimeRange(appInit->camera->m_hcam, &uimin, &uimax, &uidef);
+        ui->m_slider_expoTime->setRange(uimin, uimax);
+        ui->m_slider_expoTime->setValue(uidef);
+        // 增益
+        Toupcam_get_ExpoAGainRange(appInit->camera->m_hcam, &usmin, &usmax, &usdef);
+        ui->m_slider_expoGain->setRange(usmin, usmax);
+        ui->m_slider_expoGain->setValue(usdef);
+        // 自动曝光
+        Toupcam_put_AutoExpoEnable(appInit->camera->m_hcam, true);
+        ui->m_cbox_auto->setCheckState(Qt::CheckState::Checked);
+        ui->m_cbox_auto->setEnabled(true);
     }else{
-                appInit->camera->close();
-                ui->m_btn_open_camera->setText("打开");
-                ui->m_lbl_display1->clear();
-                ui->m_lbl_display2->clear();
-                ui->m_cbx_camera_list->setDisabled(false);
-                ui->m_cbx_camera_type->setDisabled(false);
+        appInit->camera->close();
+        ui->m_btn_open_camera->setText("打开");
+        ui->m_lbl_display1->clear();
+        ui->m_lbl_display2->clear();
+        ui->m_cbx_camera_list->setDisabled(false);
+        ui->m_cbx_camera_type->setDisabled(false);
     }
 }
 
@@ -181,12 +198,12 @@ void MainWindow::on_pushButton_clicked()
     //文件为空
     if (image.empty()) {
         return;
-    }else{
-        // 初始化输出图像
-        cv::resize(image, image, cv::Size(640, 480));
-        //显示输入图像
-        cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
     }
+    // 初始化输出图像
+    cv::resize(image, image, cv::Size(640, 480));
+    // 显示输入图像
+    cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+
     // 调整图像大小以适应控件大小
     QSize size = ui->m_lbl_display1->size();
     cv::Mat output_image;
@@ -220,3 +237,59 @@ void MainWindow::on_pushButton_clicked()
 void MainWindow::onInferenceFinished(const cv::Mat& output){
     showFrame(output);
 }
+
+
+
+//曝光目标
+
+
+
+//曝光时间
+void MainWindow::on_m_slider_expoTime_valueChanged(int value)
+{
+    ui->m_lbl_expoTime->setText(QString::number(value));
+    if (!ui->m_cbox_auto->isChecked()){
+        Toupcam_put_ExpoTime(appInit->camera->m_hcam, value);
+    }
+}
+
+
+//自动曝光
+void MainWindow::on_m_cbox_auto_stateChanged(int arg1)
+{
+    qDebug() << "on_m_cbox_auto_stateChanged";
+    if (Toupcam_put_AutoExpoEnable(appInit->camera->m_hcam, arg1) < 0)
+    {
+        return;
+    }
+    unsigned uimax = 0,  uimin = 0, uidef = 0;
+    unsigned short usmax = 0, usmin = 0, usdef = 0;
+    // 曝光时间
+    Toupcam_get_ExpTimeRange(appInit->camera->m_hcam, &uimin, &uimax, &uidef);
+    ui->m_slider_expoTime->setRange(uimin, uimax);
+    ui->m_slider_expoTime->setValue(uidef);
+    // 增益
+    Toupcam_get_ExpoAGainRange(appInit->camera->m_hcam, &usmin, &usmax, &usdef);
+    ui->m_slider_expoGain->setRange(usmin, usmax);
+    ui->m_slider_expoGain->setValue(usdef);
+    ui->m_slider_expoTime->setEnabled(!arg1);
+    ui->m_slider_expoGain->setEnabled(!arg1);
+}
+
+//增益
+void MainWindow::on_m_slider_expoGain_valueChanged(int value)
+{
+    ui->m_lbl_expoGain->setText(QString::number(value));
+    if (!ui->m_cbox_auto->isChecked()){
+        Toupcam_put_ExpoAGain(appInit->camera->m_hcam, value);
+    }
+}
+
+
+void MainWindow::on_action_triggered()
+{
+    //保存图像
+    Toupcam_Snap(appInit->camera->m_hcam, 0);
+//    appInit->camera->saveImage();
+}
+

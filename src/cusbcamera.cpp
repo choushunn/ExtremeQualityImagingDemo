@@ -10,6 +10,8 @@ CUSBCamera::CUSBCamera(int index)
 
 }
 
+
+
 CUSBCamera::~CUSBCamera() {
     // 析构函数
     close();

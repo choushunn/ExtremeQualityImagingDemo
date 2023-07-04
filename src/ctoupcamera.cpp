@@ -6,7 +6,7 @@
  * @param
  */
 CToupCamera::CToupCamera(int index)
-    :m_index(index)
+    :context_(createContext()),m_index(index)
 {
     Toupcam_EnumV2(m_arr);
 }
@@ -44,6 +44,9 @@ int CToupCamera::open() {
                 delete[] m_pData;
                 m_pData = nullptr;
             }
+
+            Toupcam_get_ExpTimeRange(m_hcam, &context_.uimin, &context_.uimax, &context_.uidef);
+            Toupcam_get_ExpoAGainRange(m_hcam, &context_.usmin, &context_.usmax, &context_.usdef);
             //启动相机
             if (SUCCEEDED(Toupcam_StartPullModeWithCallback(m_hcam, eventCallBack, this))) {
                 qDebug() << "CToupCam:打开成功.";
@@ -79,7 +82,7 @@ bool CToupCamera::read(cv::Mat& frame) {
         HRESULT hr = Toupcam_PullImageV2(m_hcam, m_pData, 24, pInfo);
         if (SUCCEEDED(hr)) {
             qDebug() << "CToupCam:读取图像成功。" << pInfo->width << "x" << pInfo->height;
-            // 将图像数据和大小信息存储到 Mat 对象中
+                // 将图像数据和大小信息存储到 Mat 对象中
             cv::Mat image(m_imgHeight, m_imgWidth, CV_8UC3, m_pData);
             frame = image.clone();
             // 将图像数据和大小信息存储到 ImageData 对象中
@@ -99,9 +102,65 @@ bool CToupCamera::read(cv::Mat& frame) {
  */
 void __stdcall CToupCamera::eventCallBack(unsigned nEvent, void *pCallbackCtx) {
     if (TOUPCAM_EVENT_IMAGE == nEvent) {
+        //读取图像
         qDebug() << "CToupCam:handleEvent:pull image ok" << nEvent;
-    } else {
+    }
+    else if(TOUPCAM_EVENT_EXPOSURE == nEvent)
+    {
+        //曝光事件
+    }
+    else if (TOUPCAM_EVENT_TEMPTINT == nEvent)
+    {
+        //handleTempTintEvent();
+    }
+    else if (TOUPCAM_EVENT_STILLIMAGE == nEvent)
+    {
+        //抓拍
+//        this->handleStillImageEvent();
+
+//        std::vector<uchar> vec(TDIBWIDTHBYTES(m_imgWidth * 24) * m_imgHeight);
+//        if (SUCCEEDED(Toupcam_PullStillImageV2(m_hcam, &vec[0], 24, pInfo)))
+//        {
+//            cv::Mat image(m_imgHeight, m_imgWidth, CV_8UC3, m_pData);
+//            cv::imwrite("save.bmp", image);
+//        }
+    }
+    else if (TOUPCAM_EVENT_ERROR == nEvent)
+    {
+
+
+    }
+    else if (TOUPCAM_EVENT_DISCONNECTED == nEvent)
+    {
+
+    }
+    else {
         qDebug() << "CToupCam:handleEvent" << nEvent;
     }
 }
 
+
+
+void CToupCamera::setAutoExposure(bool state){
+
+    if(Toupcam_put_AutoExpoEnable(this->m_hcam, state) < 0){
+        return;
+    }
+
+}
+
+void CToupCamera::handleStillImageEvent(){
+
+    std::vector<uchar> vec(TDIBWIDTHBYTES(m_imgWidth * 24) * m_imgHeight);
+    if (SUCCEEDED(Toupcam_PullStillImageV2(m_hcam, &vec[0], 24, pInfo)))
+    {
+        cv::Mat image(m_imgHeight, m_imgWidth, CV_8UC3, m_pData);
+        cv::imwrite("save.bmp", image);
+        //            image.save(QString::asprintf("toupcam_%u.jpg", ++m_count));
+    }
+}
+
+//
+void CToupCamera::setExpoTime(int value){
+    Toupcam_put_ExpoTime(m_hcam, value);
+}
